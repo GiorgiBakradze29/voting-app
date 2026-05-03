@@ -1,17 +1,12 @@
-# version is now using "compose spec"
-# v2 and v3 are now combined!
-# docker-compose v1.27+ required
-
 services:
   vote:
     build: 
-      context: ./vote
-      target: dev
+      context: ./app/vote
     depends_on:
       redis:
         condition: service_healthy
     healthcheck: 
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -25,7 +20,7 @@ services:
       - back-tier
 
   result:
-    build: ./result
+    build: ./app/result
     # use nodemon rather than node for local dev
     entrypoint: nodemon --inspect=0.0.0.0 server.js
     depends_on:
@@ -42,7 +37,7 @@ services:
 
   worker:
     build:
-      context: ./worker
+      context: ./app/worker
     depends_on:
       redis:
         condition: service_healthy 
@@ -56,8 +51,10 @@ services:
     volumes:
       - "./healthchecks:/healthchecks"
     healthcheck:
-      test: /healthchecks/redis.sh
-      interval: "5s"
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
     networks:
       - back-tier
 
@@ -70,8 +67,10 @@ services:
       - "db-data:/var/lib/postgresql/data"
       - "./healthchecks:/healthchecks"
     healthcheck:
-      test: /healthchecks/postgres.sh
-      interval: "5s"
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
     networks:
       - back-tier
 
@@ -79,7 +78,7 @@ services:
   # it won't run unless you specify the "seed" profile
   # docker compose --profile seed up -d
   seed:
-    build: ./seed-data
+    build: ./app/seed-data
     profiles: ["seed"]
     depends_on:
       vote:
