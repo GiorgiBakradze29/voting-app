@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: result-ingress
+  namespace: voting-app
+spec:
+  rules:
+  - host: result.a9e7149688e75424cae93e4d8becb1db-f91aa52e41bc41f2.elb.eu-central-1.amazonaws.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: result
+            port:
+              number: 4000

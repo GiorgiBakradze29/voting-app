@@ -42,3 +42,13 @@ module "rds" {
   db_username  = var.db_username
   db_password  = var.db_password
 }
+
+resource "helm_release" "nginx_ingress" {
+  name             = "ingress-nginx"
+  repository       = "https://kubernetes.github.io/ingress-nginx"
+  chart            = "ingress-nginx"
+  namespace        = "ingress-nginx"
+  create_namespace = true
+
+  depends_on = [module.eks]
+}

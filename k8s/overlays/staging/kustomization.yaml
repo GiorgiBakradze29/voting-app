@@ -8,3 +8,5 @@ patches:
   - path: result-deployment-patch.yaml
   - path: worker-deployment-patch.yaml
   - path: db-statefulset-patch.yaml
+  - path: vote-ingress-patch.yaml
+  - path: result-ingress-patch.yaml
