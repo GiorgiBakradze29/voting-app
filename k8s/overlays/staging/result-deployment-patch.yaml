@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result
+  namespace: voting-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: result
+        image: "678511326942.dkr.ecr.eu-central-1.amazonaws.com/voting-app-result"
+        imagePullPolicy: Always

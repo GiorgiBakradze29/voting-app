@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: voting-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: "678511326942.dkr.ecr.eu-central-1.amazonaws.com/voting-app-worker"
+        imagePullPolicy: Always
