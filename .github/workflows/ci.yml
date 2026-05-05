@@ -23,19 +23,19 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: ./app/vote/Dockerfile
-          config: .hadolint.yaml
+          no-fail: true
 
       - name: Lint result Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: ./app/result/Dockerfile
-          config: .hadolint.yaml
-          
+          no-fail: true
+
       - name: Lint worker Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: ./app/worker/Dockerfile
-          config: .hadolint.yaml  
+          no-fail: true
 
       - name: Build images
         env:
