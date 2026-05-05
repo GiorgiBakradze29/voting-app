@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Lint Dockerfiles
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./app/vote/Dockerfile
+
+      - name: Lint result Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./app/result/Dockerfile
+
+      - name: Lint worker Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./app/worker/Dockerfile
+      - name: Build images
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+        run: |
+          docker build -t $ECR_REGISTRY/voting-app-vote:latest ./app/vote
+          docker build -t $ECR_REGISTRY/voting-app-result:latest ./app/result
+          docker build -t $ECR_REGISTRY/voting-app-worker:latest ./app/worker
+      - name: Scan vote image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.ECR_REGISTRY }}/voting-app-vote:latest
+          format: table
+          exit-code: 1
+          severity: CRITICAL
+      - name: Scan result image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.ECR_REGISTRY }}/voting-app-result:latest
+          format: table
+          exit-code: 1
+          severity: CRITICAL
+      - name: Scan worker image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.ECR_REGISTRY }}/voting-app-worker:latest
+          format: table
+          exit-code: 1
+          severity: CRITICAL
+      - name: Push images to ECR
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+        run: |
+          docker push $ECR_REGISTRY/voting-app-vote:latest
+          docker push $ECR_REGISTRY/voting-app-result:latest
+          docker push $ECR_REGISTRY/voting-app-worker:latest
