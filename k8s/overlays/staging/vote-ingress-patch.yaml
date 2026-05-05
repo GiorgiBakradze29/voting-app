@@ -5,7 +5,7 @@ metadata:
   namespace: voting-app
 spec:
   rules:
-  - host: vote.a9e7149688e75424cae93e4d8becb1db-f91aa52e41bc41f2.elb.eu-central-1.amazonaws.com
+  - host: vote.abccba4efe1d3416eb1d13adef84ba8c-457163778.eu-central-1.elb.amazonaws.com
     http:
       paths:
       - path: /
